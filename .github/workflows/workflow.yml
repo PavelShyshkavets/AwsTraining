@@ -1,51 +1,25 @@
-name: CI/CD Pipeline
-on:
-  push:
-    branches: [ main ]
-jobs:
-  continuous-integration:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+# Set the base image as the .NET 5.0 SDK (this includes the runtime)
+FROM mcr.microsoft.com/dotnet/sdk:5.0 as build-env
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.6
+# Copy everything and publish the release (publish implicitly restores and builds)
+COPY . ./
+RUN dotnet publish ./DotNet.GitHubAction/DotNet.GitHubAction.csproj -c Release -o out --no-self-contained
 
-        # Install Python Dependencies
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+# Label the container
+LABEL maintainer="David Pine <david.pine@microsoft.com>"
+LABEL repository="https://github.com/dotnet/samples"
+LABEL homepage="https://github.com/dotnet/samples"
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-1
+# Label as GitHub action
+LABEL com.github.actions.name="The name of your GitHub Action"
+# Limit to 160 characters
+LABEL com.github.actions.description="The description of your GitHub Action."
+# See branding:
+# https://docs.github.com/actions/creating-actions/metadata-syntax-for-github-actions#branding
+LABEL com.github.actions.icon="activity"
+LABEL com.github.actions.color="orange"
 
-        # Build App and Run Application Test
-      - name: Build Application and Run unit Test
-        run: python run.py & pytest
-
-  continuous-deployment:
-    runs-on: ubuntu-latest
-    needs: [continuous-integration]
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-1
-
-      - name: Create CodeDeploy Deployment
-        id: deploy
-        run: |
-          # Assuming the Deployment Group is already setup
-          aws deploy create-deployment \
-            --application-name application-name \
-            --deployment-group-name AppDeploymentGroupName \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+# Relayer the .NET SDK, anew with the build output
+FROM mcr.microsoft.com/dotnet/sdk:5.0
+COPY --from=build-env /out .
+ENTRYPOINT [ "dotnet", "/DotNet.GitHubAction.dll" ]
