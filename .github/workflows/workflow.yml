@@ -1,46 +1,81 @@
-name: 'Book api'
+name: API workflow
 
 on:
   push:
     branches: [ main ]
     paths:
-    - 'github-actions/DotNet.GitHubAction/**'               
-    - '!github-actions/DotNet.GitHubAction/CODE_METRICS.md' 
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'The reason for running the workflow'
-        required: true
-        default: 'Api run'
+      - 'src/**'    
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
 
 jobs:
-  analysis:
-
+  build:
+    name: Build API
     runs-on: ubuntu-latest
-
+    env:
+      working-directory: './src'
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0'
+    - name: Restore dependencies
+      run: dotnet restore API.sln
+      working-directory: ${{env.working-directory}}
+    - run: dotnet build --no-restore
+      working-directory: ${{env.working-directory}}    
+    - run: dotnet test --no-build --verbosity normal
+      working-directory: ${{env.working-directory}}
 
-    - name: 'Print manual run reason'
-      if: ${{ github.event_name == 'workflow_dispatch' }}
-      run: |
-        echo 'Reason: ${{ github.event.inputs.reason }}'
+  deploy-dev:
+    name: Deploy to Dev
+    if: github.event.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [build]
 
-    - name: .NET code metrics
-      id: dotnet-code-metrics
-      uses: dotnet/samples/github-actions/DotNet.GitHubAction@main
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.API_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.API_AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
       env:
-        GREETINGS: 'Hello, .NET developers!'
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: your-ecr-name
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Build a docker container and
+        # push it to ECR so that it can
+        # be deployed to ECS.
+        docker build -f src/api/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG src/api
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        owner: ${{ PavelShyshkavets }}
-        name: ${{ PavelShyshkavets/AwsTraining }}
-        branch: ${{ main }}
-        dir: ${{ './github-actions/DotNet.GitHubAction' }}
-      
-    - name: Create pull request
-      uses: PavelShyshkavets/AwsTraining/pull/1@v3.4.1
-      if: ${{ steps.dotnet-code-metrics.outputs.updated-metrics }} == 'true'
+        task-definition: .github/task-definitions/your-api-task-definition.json
+        container-name: your-container-name
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        title: '${{ steps.dotnet-code-metrics.outputs.summary-title }}'
-        body: '${{ steps.dotnet-code-metrics.outputs.summary-details }}'
-        commit-message: '.NET code metrics, automated pull request.'
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: your-service-name
+        cluster: your-cluster-name
+        wait-for-service-stability: true
