@@ -79,3 +79,4 @@ jobs:
         service: your-service-name
         cluster: your-cluster-name
         wait-for-service-stability: true
+        
