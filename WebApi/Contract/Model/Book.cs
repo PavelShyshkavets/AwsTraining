@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Contract
+namespace Contract.Model
 {
     [DynamoDBTable("Book")]
     public class Book

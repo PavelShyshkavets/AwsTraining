@@ -1,15 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
-using WebApi.Model;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DocumentModel;
 using Contract.Interfaces;
-using Contract;
-using Contract.Enums;
+using Contract.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
@@ -27,30 +20,30 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            var readers = await _repository.All();
+            var readers = await _repository.GetAll();
             return Ok(readers);
         }
 
-        [HttpGet("{iSBN}")]
-        public async Task<ActionResult> GetById(string iSBN)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetById(Guid id)
         {
-            if (!string.IsNullOrEmpty(iSBN))
+            try
             {
-                var readers = await _repository.Find(new SearchRequest { ISBN = iSBN });
-                return Ok(readers.FirstOrDefault());
+                var readers = await _repository.GetById(id);
+                return Ok(readers);
             }
-            else
+            catch
             {
                 return BadRequest();
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] BookInputModel model)
+        public async Task<ActionResult> Create([FromBody] Book model)
         {
             try
             { 
-                await _repository.Add(model);
+                await _repository.Create(model);
 
                 return Ok();
             }
@@ -60,13 +53,13 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult> Edit(Guid id, [FromBody] BookInputModel model)
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] Book model)
         {
             try
             {
 
-                await _repository.Update(id, model);
+                await _repository.Update(model);
                 return Ok();
             }
             catch
@@ -80,7 +73,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                await _repository.Remove(id);
+                await _repository.Delete(id);
                 return Ok();
             }
             catch (Exception)

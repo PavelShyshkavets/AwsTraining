@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Contract.Model;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,16 +8,14 @@ namespace Contract.Interfaces
 {
     public interface IRepository
     {
-        Task<Book> Single(Guid Id);
+        Task<Book> GetById(Guid Id);
 
-        Task<BookModel> All(string paginationToken = "");
+        Task<IEnumerable<Book>> GetAll();
 
-        Task<IEnumerable<Book>> Find(SearchRequest searchReq);
+        Task Create(Book entity);
 
-        Task Add(BookInputModel entity);
+        Task Delete(Guid Id);
 
-        Task Remove(Guid Id);
-
-        Task Update(Guid Id, BookInputModel entity);
+        Task Update(Book entity);
     }
 }
