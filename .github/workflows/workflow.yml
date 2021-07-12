@@ -42,4 +42,4 @@ jobs:
 
     - name: Force deployment
       run: |
-        aws ecs update-service --service book-api-repo --force-new-deployment --cluster dev-cluster
+        aws ecs update-service --service book-api-repo --force-new-deployment --cluster book-api-cluster
