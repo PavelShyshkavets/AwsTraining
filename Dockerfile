@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ["WebApi/WebApi/WebApi.csproj", "WebApi/"]
 COPY ["WebApi/Contract/Contract.csproj", "Contract/"]
 COPY ["WebApi/Core/Core.csproj", "Core/"]
-RUN dotnet restore "WebApi/WebApi/WebApi.csproj"
+RUN dotnet restore "WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/WebApi"
 RUN dotnet build "WebApi.csproj" -c Release -o /app/build
