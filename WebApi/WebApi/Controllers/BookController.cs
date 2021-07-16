@@ -47,7 +47,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                var client = new AmazonSQSClient("AKIAQNO7NYHQL3ZQMREH", "KgoP33i/XmE0dTq3QH9KwgYPrbMxn2AyrgUAkDnt", RegionEndpoint.USWest2);
+                var client = new AmazonSQSClient(RegionEndpoint.USWest2);
                 var request = new GetQueueUrlRequest
                 {
                     QueueName = "BookQueue",
