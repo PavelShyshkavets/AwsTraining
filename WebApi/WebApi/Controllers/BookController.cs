@@ -46,10 +46,8 @@ namespace WebApi.Controllers
         public async Task<ActionResult> Create([FromBody] Book model)
         {
             try
-            { 
-                await _repository.Create(model);
-
-                var client = new AmazonSQSClient(RegionEndpoint.USWest2);
+            {
+                var client = new AmazonSQSClient("AKIAQNO7NYHQL3ZQMREH", "KgoP33i/XmE0dTq3QH9KwgYPrbMxn2AyrgUAkDnt", RegionEndpoint.USWest2);
                 var request = new GetQueueUrlRequest
                 {
                     QueueName = "BookQueue",
@@ -59,6 +57,8 @@ namespace WebApi.Controllers
                 var response = await client.GetQueueUrlAsync(request);
                 var sendMessageRequest = new SendMessageRequest(response.QueueUrl, JsonSerializer.Serialize(model));
                 var sendMessageResponse = await client.SendMessageAsync(sendMessageRequest);
+
+                await _repository.Create(model);
 
                 return Ok();
             }

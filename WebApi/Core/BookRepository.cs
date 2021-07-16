@@ -16,7 +16,7 @@ namespace Core
 
         public BookRepository()
         {
-            _client = new AmazonDynamoDBClient(Amazon.RegionEndpoint.USWest2);
+            _client = new AmazonDynamoDBClient("AKIAQNO7NYHQL3ZQMREH", "KgoP33i/XmE0dTq3QH9KwgYPrbMxn2AyrgUAkDnt", Amazon.RegionEndpoint.USWest2);
             _context = new DynamoDBContext(_client);
         }
 
