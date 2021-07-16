@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Amazon.SQS;
+using Amazon.SQS.Model;
 using Contract.Interfaces;
 using Contract.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using Amazon;
 
 namespace WebApi.Controllers
 {
@@ -44,6 +48,17 @@ namespace WebApi.Controllers
             try
             { 
                 await _repository.Create(model);
+
+                var client = new AmazonSQSClient(RegionEndpoint.USWest2);
+                var request = new GetQueueUrlRequest
+                {
+                    QueueName = "BookQueue",
+                    QueueOwnerAWSAccountId = "028922724832"
+                };
+
+                var response = await client.GetQueueUrlAsync(request);
+                var sendMessageRequest = new SendMessageRequest(response.QueueUrl, JsonSerializer.Serialize(model));
+                var sendMessageResponse = await client.SendMessageAsync(sendMessageRequest);
 
                 return Ok();
             }
