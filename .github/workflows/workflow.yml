@@ -51,7 +51,7 @@ jobs:
         instance-ids: ${{ secrets.INSTANCE_ID }}
         
         working-directory: /home/ec2-user
-        command: docker run -t -p 80:80 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
+        command: sh autoDocker.sh
         
         # Catch SSM outputs
     - name: Get the outputs
