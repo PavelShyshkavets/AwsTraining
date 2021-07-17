@@ -50,4 +50,5 @@ jobs:
         aws-secret-access-key: ${{ secrets.API_AWS_SECRET_ACCESS_KEY }}
         instance-ids: ${{ secrets.INSTANCE_ID }}
         
+        working-directory: /home/ec2-user
         command: /bin/sh autoDocker.sh
