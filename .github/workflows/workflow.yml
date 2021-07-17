@@ -41,5 +41,4 @@ jobs:
  
     - name: execite autoDocker script
       run: |
-        chmod +x "${GITHUB_WORKSPACE}/.github/autoDocker.sh"
-        "${GITHUB_WORKSPACE}/.github/autoDocker.sh"
+        ssh -i ${SHH_PATH} sh autoDocker.sh
