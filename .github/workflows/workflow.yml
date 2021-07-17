@@ -49,6 +49,5 @@ jobs:
         aws-access-key-id: ${{ secrets.API_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.API_AWS_SECRET_ACCESS_KEY }}
         instance-ids: ${{ secrets.INSTANCE_ID }}
-
-        working-directory: /home/ubuntu/application
+        
         command: sh autoDocker.sh
