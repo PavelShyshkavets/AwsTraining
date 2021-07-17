@@ -9,7 +9,7 @@ using Contract.Model;
 
 namespace Core
 {
-    public class BookRepository : IRepository
+    internal class BookRepository : IRepository
     {
         private readonly AmazonDynamoDBClient _client;
         private readonly DynamoDBContext _context;

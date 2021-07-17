@@ -1,8 +1,7 @@
-﻿using Contract.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using Contract.Model;
 
 namespace Contract.Interfaces
 {
