@@ -50,4 +50,4 @@ jobs:
         aws-secret-access-key: ${{ secrets.API_AWS_SECRET_ACCESS_KEY }}
         instance-ids: ${{ secrets.INSTANCE_ID }}
         
-        command: sh autoDocker.sh
+        command: hello word!
