@@ -39,11 +39,6 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
  
-    - name: execite autoDocker script
-      run: |
-        chmod +x "${GITHUB_WORKSPACE}/.github/autoDocker.sh"
-        "${GITHUB_WORKSPACE}/.github/autoDocker.sh"
-        
     - uses: actions/checkout@v2
 
     - name: AWS SSM Send-Command
