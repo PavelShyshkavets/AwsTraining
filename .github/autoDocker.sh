@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker stop $(docker ps -a -q)
+docker stop $(docker ps -a -q -t)
 docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) https://028922724832.dkr.ecr.us-east-1.amazonaws.com
 docker pull 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
-docker run -it -p 80:80 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
+docker run -it -t -p 80:80 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
