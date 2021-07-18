@@ -52,7 +52,3 @@ jobs:
         
         working-directory: /home/ec2-user
         command: sh autoDocker.sh
-
-        # Catch SSM outputs
-    - name: Get the outputs
-      run: echo "The Command id is ${{ steps.ssm.outputs.command-id }}"
