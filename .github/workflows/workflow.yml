@@ -52,7 +52,7 @@ jobs:
         
         working-directory: /home/ec2-user
         command: sh autoDocker.sh
-        run: sh autoDocker.sh
+        run: autoDocker.sh
 
         # Catch SSM outputs
     - name: Get the outputs
