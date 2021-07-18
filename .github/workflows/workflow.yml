@@ -51,8 +51,12 @@ jobs:
         instance-ids: ${{ secrets.INSTANCE_ID }}
         
         working-directory: /home/ec2-user
-        command: sh autoDocker.sh
-        
+        command:
+          docker stop $(docker ps -a -q)
+          docker login -u AWS -p $(aws ecr get-login-password --region us-east-1)
+          https://0289$docker pull 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
+          docker run -it -p 80:80 028922724832.dkr.ecr.us-east-1.amazonaws.com/book-api-repo
+          
         # Catch SSM outputs
     - name: Get the outputs
       run: echo "The Command id is ${{ steps.ssm.outputs.command-id }}"
