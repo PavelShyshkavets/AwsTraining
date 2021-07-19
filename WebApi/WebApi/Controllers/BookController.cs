@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Contract.Interfaces;
 using Contract.Model;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NLog;
 
 namespace WebApi.Controllers
@@ -35,10 +36,12 @@ namespace WebApi.Controllers
             try
             {
                 var readers = await _repository.GetById(id);
+                logger.Info("Get By id: " + JsonConvert.SerializeObject(readers));
                 return Ok(readers);
             }
             catch
             {
+                logger.Info("Get By id exeption!");
                 return BadRequest();
             }
         }
@@ -50,11 +53,12 @@ namespace WebApi.Controllers
             {
                 await _sqsService.SendMessage(model, MessageType.Create);
                 await _repository.Create(model);
-
+                logger.Info("Create: " + JsonConvert.SerializeObject(model));
                 return Ok();
             }
             catch
             {
+                logger.Info("Create exeption!");
                 return BadRequest();
             }
         }
@@ -66,10 +70,12 @@ namespace WebApi.Controllers
             {
                 await _sqsService.SendMessage(model, MessageType.Update);
                 await _repository.Update(model);
+                logger.Info("Update: " + JsonConvert.SerializeObject(model));
                 return Ok();
             }
             catch
             {
+                logger.Info("Update exeption!");
                 return BadRequest();
             }
         }
@@ -80,10 +86,12 @@ namespace WebApi.Controllers
             try
             {
                 await _repository.Delete(id);
+                logger.Info("Delete: " + id);
                 return Ok();
             }
             catch (Exception)
             {
+                logger.Info("Delete exeption!");
                 return BadRequest();
             }
         }
