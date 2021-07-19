@@ -4,7 +4,7 @@ using Contract.Interfaces;
 using Contract.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi.Controllers
 {
@@ -14,18 +14,19 @@ namespace WebApi.Controllers
     {
         private readonly IRepository _repository;
         private readonly ISqsService _sqsService;
-        private static Logger logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
 
-        public BookController(IRepository repository, ISqsService sqsService)
+        public BookController(ILogger<BookController> logger, IRepository repository, ISqsService sqsService)
         {
             _repository = repository;
             _sqsService = sqsService;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
-            logger.Info("Get all");
+            _logger.LogInformation("Get all");
             var readers = await _repository.GetAll();
             return Ok(readers);
         }
@@ -36,12 +37,12 @@ namespace WebApi.Controllers
             try
             {
                 var readers = await _repository.GetById(id);
-                logger.Info("Get By id: " + JsonConvert.SerializeObject(readers));
+                _logger.LogInformation("Get By id: " + JsonConvert.SerializeObject(readers));
                 return Ok(readers);
             }
             catch
             {
-                logger.Info("Get By id exeption!");
+                _logger.LogInformation("Get By id exeption!");
                 return BadRequest();
             }
         }
@@ -53,12 +54,12 @@ namespace WebApi.Controllers
             {
                 await _sqsService.SendMessage(model, MessageType.Create);
                 await _repository.Create(model);
-                logger.Info("Create: " + JsonConvert.SerializeObject(model));
+                _logger.LogInformation("Create: " + JsonConvert.SerializeObject(model));
                 return Ok();
             }
             catch
             {
-                logger.Info("Create exeption!");
+                _logger.LogInformation("Create exeption!");
                 return BadRequest();
             }
         }
@@ -70,12 +71,12 @@ namespace WebApi.Controllers
             {
                 await _sqsService.SendMessage(model, MessageType.Update);
                 await _repository.Update(model);
-                logger.Info("Update: " + JsonConvert.SerializeObject(model));
+                _logger.LogInformation("Update: " + JsonConvert.SerializeObject(model));
                 return Ok();
             }
             catch
             {
-                logger.Info("Update exeption!");
+                _logger.LogInformation("Update exeption!");
                 return BadRequest();
             }
         }
@@ -86,12 +87,12 @@ namespace WebApi.Controllers
             try
             {
                 await _repository.Delete(id);
-                logger.Info("Delete: " + id);
+                _logger.LogInformation("Delete: " + id);
                 return Ok();
             }
             catch (Exception)
             {
-                logger.Info("Delete exeption!");
+                _logger.LogInformation("Delete exeption!");
                 return BadRequest();
             }
         }
