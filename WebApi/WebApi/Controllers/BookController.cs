@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Contract.Interfaces;
 using Contract.Model;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 
 namespace WebApi.Controllers
 {
@@ -12,6 +13,7 @@ namespace WebApi.Controllers
     {
         private readonly IRepository _repository;
         private readonly ISqsService _sqsService;
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         public BookController(IRepository repository, ISqsService sqsService)
         {
@@ -22,6 +24,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAll()
         {
+            logger.Info("Get all");
             var readers = await _repository.GetAll();
             return Ok(readers);
         }
