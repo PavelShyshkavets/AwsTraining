@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog.Web;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,9 @@ namespace WebApi
     {
         public static void Main(string[] args)
         {
+            Logger logger = LogManager.GetCurrentClassLogger();
+            logger.Info("Check the AWS Console CloudWatch Logs console in us-west-2");
+
             CreateHostBuilder(args).Build().Run();
         }
 
